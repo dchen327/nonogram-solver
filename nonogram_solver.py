@@ -6,15 +6,16 @@ from time import sleep
 
 BOARD_SIZE = 10  # 5, 10, 15, 20
 USER_DATA_DIR = '--user-data-dir=/home/dchen327/.config/google-chrome/Profile 2'
-LINK = f'https://www.goobix.com/games/nonograms/?s={BOARD_SIZE}'
 
 
 class NonogramSolver:
-    def __init__(self):
-        self.launch_browser()
+    def __init__(self, board_size):
+        self.board_size = board_size
+        link = f'https://www.goobix.com/games/nonograms/?s={board_size}'
+        self.launch_browser(link)
         self.get_board()
 
-    def launch_browser(self):
+    def launch_browser(self, link):
         """ Launch chrome and go to game link """
         options = Options()
         if USER_DATA_DIR:
@@ -26,7 +27,7 @@ class NonogramSolver:
         options.add_experimental_option('detach', True)
         options.add_argument('--start-maximized')
         self.driver = webdriver.Chrome(options=options)
-        self.driver.get(LINK)
+        self.driver.get(link)
         sleep(1)  # wait for page load
         # self.driver.refresh()  # refresh to activate adblocker
 
@@ -35,8 +36,15 @@ class NonogramSolver:
         rules = {'rows': [], 'cols': []}
         rule_elements = self.driver.find_elements_by_class_name(
             'nonogramsDef')  # find rules
-        for rule_element in rule_elements:
-            print(rule_element.text)
+        # store rules in rules dict by row and col
+        for rule_element in rule_elements[:self.board_size]:
+            rule = list(map(int, rule_element.text.split()))
+            rules['cols'].append(rule)
+        for rule_element in rule_elements[self.board_size:2 * self.board_size]:
+            rule = list(map(int, rule_element.text.split()))
+            rules['rows'].append(rule)
+
+        print(rules)
 
     def solve_line(self, line, rules):
         """ Given a line (row/col) and rules, solve as much as possible """
@@ -86,9 +94,9 @@ class NonogramSolver:
 
 
 if __name__ == "__main__":
-    nonogram_solver = NonogramSolver()
+    nonogram_solver = NonogramSolver(BOARD_SIZE)
     line = np.array(list('||||1||1||'))
     rules = '4'
     rules = list(map(int, rules.split()))
     line = nonogram_solver.solve_line(line, rules)
-    print(''.join(line))
+    # print(''.join(line))
