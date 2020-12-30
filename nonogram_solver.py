@@ -38,9 +38,9 @@ class NonogramSolver:
         return line
 
     def partitions(self, n, k):
-        """ n is the integer to partition, k is the length of partitions """
-        if k < 1:
-            return
+        """ n is the integer to partition, k is the length of partitions 
+            ex) n=5, k=2 -> (5, 0), (4, 1), (3, 2), ..., (0, 5)
+        """
         if k == 1:
             if n >= 0:
                 yield (n,)
