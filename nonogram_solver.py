@@ -96,23 +96,33 @@ class NonogramSolver:
         stack = self.rules[:]
         while stack:
             rule, idx, knowledge = stack.pop()
-            if idx < self.board_size:  # column
-                board_idx = slice(None, idx)  # [:, idx], select col
-            else:  # row
-                # [idx, :], select row]
-                board_idx = slice(idx - self.board_size, None)
+            board_idx = self.get_board_idx(idx)
+            print(board_idx)
             line = self.board[board_idx]
+            print(line)
+            print()
             line = self.solve_line(line, rule)
-            self.board[board_idx] = line
+            # self.board[board_idx] = line
+            self.click_squares(board_idx, line)
 
         print(self.board)
 
-    def click_squares(self, idx, line):
-        """ Fill in squares given an idx and a solved line """
+    def click_squares(self, board_idx, line):
+        """ Fill in squares given an idx and a solved line, update in self.board """
+        curr_line = self.board[board_idx]
+        for i, val in enumerate(line):
+            if val != '|' and curr_line[i] == '|':  # update in board
+                print(board_idx, i, val)
+                self.board[board_idx][i] = val
+        print(self.board)
+
+    def get_board_idx(self, idx):
+        """ Given idx from 0 to 2 * board_size - 1, return np index """
         if idx < self.board_size:  # column
-            pass
+            board_idx = (slice(None), idx)  # [:, idx], select col
         else:  # row
-            pass
+            board_idx = (idx - self.board_size, slice(None))
+        return board_idx
 
     def get_knowledge(self, rule):
         """ Returns a measure of how much we know given the current rule """
