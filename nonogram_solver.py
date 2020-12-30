@@ -1,4 +1,5 @@
 import numpy as np
+from functools import reduce
 
 
 class NonogramSolver:
@@ -10,6 +11,7 @@ class NonogramSolver:
             # generate possible binary strings
             # ex) rules: [4, 1] -> a4bX1c where a, b, c are strings of Xs
             # ex) a + b + c = N - K, since 4 + 1 + 1 = K
+            possible = []  # possible bin strings
             for t in self.partitions(N - K, len(rules) + 1):
                 # build binary string
                 bin_str = t[0] * '0' + rules[0] * '1'
@@ -17,7 +19,9 @@ class NonogramSolver:
                     print(i, rule)
                     bin_str += t[i] * '0' + rule * '1'
                 bin_str += t[-1] * '0'  # add right side padding
-                print(bin_str)
+                possible.append(int(bin_str, 2))
+            overlap = reduce(lambda x, y: x & y, possible)
+            print(bin(overlap)[2:].zfill(N))
 
     def partitions(self, n, k):
         """ n is the integer to partition, k is the length of partitions """
@@ -34,7 +38,6 @@ class NonogramSolver:
 
 if __name__ == "__main__":
     nonogram_solver = NonogramSolver()
-    line = np.array(['', '', '', '', ''])
-    rule = [3]
+    line = np.array(['', '', '', '', '', '', '', '', '', ''])
+    rule = [8]
     print(nonogram_solver.solve_line(line, rule))
-    print(list(nonogram_solver.partitions(5, 2)))
