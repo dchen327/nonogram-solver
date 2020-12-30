@@ -101,12 +101,17 @@ class NonogramSolver:
 
     def solve_game(self):
         self.stack = self.rules[:]
-        while self.stack:
-            rule, idx, knowledge = self.stack.pop()
-            board_idx = self.get_board_idx(idx)
-            line = self.board[board_idx].copy()
-            line = self.solve_line(line, rule)
-            self.click_squares(idx, line)
+        changed = True
+        while changed:
+            changed = False
+            for rule, idx, knowledge in self.stack:
+                board_idx = self.get_board_idx(idx)
+                line = self.board[board_idx].copy()
+                line = self.solve_line(line, rule)
+                # changes made
+                if not np.array_equal(line, self.board[board_idx]):
+                    self.click_squares(idx, line)
+                    changed = True
 
         print(self.board)
 
