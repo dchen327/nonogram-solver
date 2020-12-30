@@ -17,18 +17,18 @@ class NonogramSolver:
             for i, rule in enumerate(rules[1:], start=1):
                 bin_str += t[i] * '0' + '0' + rule * '1'  # pad left with 0
             bin_str += t[-1] * '0'  # add right side padding
-            for i in range(N):
-                if (bin_str[i] == '1' and line[i] == '0') or (bin_str[i] == '0' and line[i] == '1'):
+            for i, bit in enumerate(bin_str):
+                if (bit == '1' and line[i] == '0') or (bit == '0' and line[i] == '1'):
                     break  # contradiction found
-            else:
+            else:  # no contradictions with line
                 possible.append(int(bin_str, 2))
         # if 1, then bitwise AND is only 1 if all are 1
         o_overlap = reduce(lambda x, y: x & y, possible)
         # if 0, then bitwise OR is only 0 if all are 0
         x_overlap = reduce(lambda x, y: x | y, possible)
-        o_overlap = bin(o_overlap)[2:].zfill(N)
-        x_overlap = bin(x_overlap)[2:].zfill(N)
-        for i in range(N):
+        o_overlap = bin(o_overlap)[2:].zfill(N)  # convert int to bin string
+        x_overlap = bin(x_overlap)[2:].zfill(N)  # convert int to bin string
+        for i in range(N):  # set confirmed locations in line
             if o_overlap[i] == '1':
                 line[i] = '1'
             if x_overlap[i] == '0':
