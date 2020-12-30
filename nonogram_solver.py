@@ -39,7 +39,7 @@ class NonogramSolver:
 
     def get_rules(self):
         """
-        Store row/cols of board and rules in self.rules
+        Store row/cols of board and rules in self.rules 
         rule format: ([rules], row/col idx, knowledge)
         ex) ([2, 4], 3, 7)
         rows are 0 to board_size-1, cols are board_size to 2 * board_size - 1
@@ -50,25 +50,25 @@ class NonogramSolver:
         # store rules in rules dict by row and col
         for i, rule_element in enumerate(rule_elements[:2 * self.board_size]):
             rule = list(map(int, rule_element.text.split()))
-            rules.append(
+            self.rules.append(1)
 
-        print(rules)
+        print(self.rules)
 
     def solve_line(self, line, rules):
         """ Given a line (row/col) and rules, solve as much as possible """
         if rules == []:  # no rules, all must be X
             line.fill('0')
             return line
-        K=sum(rules) + len(rules) - 1  # knowledge about current line
-        N=len(line)
+        K = sum(rules) + len(rules) - 1  # knowledge about current line
+        N = len(line)
         # generate possible binary strings
         # ex) rules: [4, 1] -> a4bX1c where a, b, c are strings of Xs
         # ex) a + b + c = N - K, since 4 + 1 + 1 = K
-        possible=[]  # possible bin strings
+        possible = []  # possible bin strings
         for t in self.partitions(N - K, len(rules) + 1):
             # build binary string
             # don't 1 pad left on first rule
-            bin_str=t[0] * '0' + rules[0] * '1'
+            bin_str = t[0] * '0' + rules[0] * '1'
             for i, rule in enumerate(rules[1:], start=1):
                 bin_str += t[i] * '0' + '0' + rule * '1'  # pad left with 0
             bin_str += t[-1] * '0'  # add right side padding
@@ -78,21 +78,21 @@ class NonogramSolver:
             else:  # no contradictions with line
                 possible.append(int(bin_str, 2))
         # if 1, then bitwise AND is only 1 if all are 1
-        o_overlap=reduce(lambda x, y: x & y, possible)
+        o_overlap = reduce(lambda x, y: x & y, possible)
         # if 0, then bitwise OR is only 0 if all are 0
-        x_overlap=reduce(lambda x, y: x | y, possible)
-        o_overlap=bin(o_overlap)[2:].zfill(N)  # convert int to bin string
-        x_overlap=bin(x_overlap)[2:].zfill(N)  # convert int to bin string
+        x_overlap = reduce(lambda x, y: x | y, possible)
+        o_overlap = bin(o_overlap)[2:].zfill(N)  # convert int to bin string
+        x_overlap = bin(x_overlap)[2:].zfill(N)  # convert int to bin string
         for i in range(N):  # set confirmed locations in line
             if o_overlap[i] == '1':
-                line[i]='1'
+                line[i] = '1'
             if x_overlap[i] == '0':
-                line[i]='0'
+                line[i] = '0'
 
         return line
 
     def partitions(self, n, k):
-        """ n is the integer to partition, k is the length of partitions
+        """ n is the integer to partition, k is the length of partitions 
             ex) n=5, k=2 -> (5, 0), (4, 1), (3, 2), ..., (0, 5)
         """
         if k == 1:
@@ -105,10 +105,10 @@ class NonogramSolver:
 
 
 if __name__ == "__main__":
-    nonogram_solver=NonogramSolver(BOARD_SIZE)
+    nonogram_solver = NonogramSolver(BOARD_SIZE)
     nonogram_solver.setup_game()
-    line=np.array(list('|||||'))
-    rules=''
-    rules=list(map(int, rules.split()))
-    line=nonogram_solver.solve_line(line, rules)
+    line = np.array(list('|||||'))
+    rules = ''
+    rules = list(map(int, rules.split()))
+    line = nonogram_solver.solve_line(line, rules)
     print(''.join(line))
