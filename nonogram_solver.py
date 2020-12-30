@@ -19,6 +19,7 @@ class NonogramSolver:
         link = f'https://www.goobix.com/games/nonograms/?s={self.board_size}'
         self.launch_browser(link)
         self.get_rules()
+        self.solve_game()
 
     def launch_browser(self, link):
         """ Launch chrome and go to game link """
@@ -51,6 +52,7 @@ class NonogramSolver:
             rule = list(map(int, rule_element.text.split()))
             self.rules.append((rule, i, self.get_knowledge(rule)))
 
+        # put most knowledge at end of list
         self.rules.sort(key=lambda x: x[2])
 
     def solve_line(self, line, rule):
@@ -68,8 +70,8 @@ class NonogramSolver:
             # build binary string
             # don't 1 pad left on first rule
             bin_str = t[0] * '0' + rule[0] * '1'
-            for i, rule in enumerate(rule[1:], start=1):
-                bin_str += t[i] * '0' + '0' + rule * '1'  # pad left with 0
+            for i, num in enumerate(rule[1:], start=1):
+                bin_str += t[i] * '0' + '0' + num * '1'  # pad left with 0
             bin_str += t[-1] * '0'  # add right side padding
             for i, bit in enumerate(bin_str):
                 if (bit == '1' and line[i] == '0') or (bit == '0' and line[i] == '1'):
@@ -91,9 +93,14 @@ class NonogramSolver:
         return line
 
     def solve_game(self):
-        stack = []
+        stack = self.rules[:]
         while stack:
-            stack.append(rules.pop())
+            rule, idx, knowledge = stack.pop()
+            if idx < self.board_size:  # column
+                line = self.board[:, idx]
+            else:  # row
+                line = self.board[idx - self.board_size, :]
+            print(self.solve_line(line, rule))
 
     def get_knowledge(self, rule):
         """ Returns a measure of how much we know given the current rule """
