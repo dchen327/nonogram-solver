@@ -13,6 +13,7 @@ class NonogramSolver:
         possible = []  # possible bin strings
         for t in self.partitions(N - K, len(rules) + 1):
             # build binary string
+            # don't 1 pad left on first rule
             bin_str = t[0] * '0' + rules[0] * '1'
             for i, rule in enumerate(rules[1:], start=1):
                 bin_str += t[i] * '0' + '0' + rule * '1'  # pad left with 0
