@@ -45,5 +45,5 @@ class NonogramSolver:
 if __name__ == "__main__":
     nonogram_solver = NonogramSolver()
     line = np.array(['', '', '', '', '', '', '', '', '', ''])
-    rules = [3, 6]
+    rules = [3, 3, 1]
     print(nonogram_solver.solve_line(line, rules))
