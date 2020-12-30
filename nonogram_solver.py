@@ -4,7 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from time import sleep
 
-BOARD_SIZE = 10  # 5, 10, 15, 20
+BOARD_SIZE = 20  # 5, 10, 15, 20
 USER_DATA_DIR = '--user-data-dir=/home/dchen327/.config/google-chrome/Profile 2'
 
 
@@ -113,8 +113,6 @@ class NonogramSolver:
                     self.click_squares(idx, line)
                     changed = True
 
-        print(self.board)
-
     def click_squares(self, idx, line):
         """ Fill in squares given an idx and a solved line, update in self.board """
         board_idx = self.get_board_idx(idx)
@@ -159,8 +157,3 @@ class NonogramSolver:
 if __name__ == "__main__":
     nonogram_solver = NonogramSolver(BOARD_SIZE)
     nonogram_solver.setup_game()
-    # line = np.array(list('|||||'))
-    # rules = '3'
-    # rules = list(map(int, rules.split()))
-    # line = nonogram_solver.solve_line(line, rules)
-    # print(''.join(line))
