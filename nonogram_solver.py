@@ -1,8 +1,33 @@
 import numpy as np
 from functools import reduce
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from time import sleep
+
+BOARD_SIZE = 10  # 5, 10, 15, 20
+USER_DATA_DIR = '--user-data-dir=/home/dchen327/.config/google-chrome/Profile 2'
+LINK = f'https://www.goobix.com/games/nonograms/?s={BOARD_SIZE}'
 
 
 class NonogramSolver:
+    def __init__(self):
+        self.launch_browser()
+
+    def launch_browser(self):
+        """ Launch chrome and go to game link """
+        options = Options()
+        if USER_DATA_DIR:
+            options.add_argument(USER_DATA_DIR)
+        # remove the little popup in corner
+        options.add_experimental_option(
+            'excludeSwitches', ['enable-automation'])
+        # allow instance to keep running after function ends
+        options.add_experimental_option('detach', True)
+        options.add_argument('--start-maximized')
+        self.driver = webdriver.Chrome(options=options)
+        self.driver.get(LINK)
+        sleep(2)  # wait for page load
+
     def solve_line(self, line, rules):
         """ Given a line (row/col) and rules, solve as much as possible """
         K = sum(rules) + len(rules) - 1  # knowledge about current line
