@@ -13,12 +13,14 @@ class NonogramSolver:
         self.board_size = board_size
         self.board = np.full((board_size, board_size), fill_value='|')
         self.rules = []
+        self.cells = []
 
     def setup_game(self):
         """ Launch browser and get board """
         link = f'https://www.goobix.com/games/nonograms/?s={self.board_size}'
         self.launch_browser(link)
         self.get_rules()
+        self.get_cell_elements()
         self.solve_game()
 
     def launch_browser(self, link):
@@ -54,6 +56,10 @@ class NonogramSolver:
 
         # put most knowledge at end of list
         self.rules.sort(key=lambda x: x[2])
+
+    def get_cell_elements(self):
+        """ Store all cell elements for clicking """
+        self.cells = self.driver.find_elements_by_class_name('nonoCell')
 
     def solve_line(self, line, rule):
         """ Given a line (row/col) and rule, solve as much as possible """
@@ -97,24 +103,25 @@ class NonogramSolver:
         while stack:
             rule, idx, knowledge = stack.pop()
             board_idx = self.get_board_idx(idx)
-            print(board_idx)
-            line = self.board[board_idx]
-            print(line)
-            print()
+            line = self.board[board_idx].copy()
             line = self.solve_line(line, rule)
-            # self.board[board_idx] = line
-            self.click_squares(board_idx, line)
+            self.click_squares(idx, line)
 
         print(self.board)
 
-    def click_squares(self, board_idx, line):
+    def click_squares(self, idx, line):
         """ Fill in squares given an idx and a solved line, update in self.board """
+        board_idx = self.get_board_idx(idx)
         curr_line = self.board[board_idx]
         for i, val in enumerate(line):
             if val != '|' and curr_line[i] == '|':  # update in board
-                print(board_idx, i, val)
                 self.board[board_idx][i] = val
-        print(self.board)
+                if idx < self.board_size:  # col
+                    row, col = i, idx
+                else:  # row
+                    row, col = idx - self.board_size, i
+                cell = self.cells[col * self.board_size + row]
+                cell.click()
 
     def get_board_idx(self, idx):
         """ Given idx from 0 to 2 * board_size - 1, return np index """
