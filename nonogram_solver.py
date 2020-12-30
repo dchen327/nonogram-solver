@@ -98,9 +98,14 @@ class NonogramSolver:
             rule, idx, knowledge = stack.pop()
             if idx < self.board_size:  # column
                 line = self.board[:, idx]
+                line = self.solve_line(line, rule)
+                self.board[:, idx] = line
             else:  # row
                 line = self.board[idx - self.board_size, :]
-            print(self.solve_line(line, rule))
+                line = self.solve_line(line, rule)
+                self.board[idx - self.board_size, :] = line
+
+        print(self.board)
 
     def get_knowledge(self, rule):
         """ Returns a measure of how much we know given the current rule """
