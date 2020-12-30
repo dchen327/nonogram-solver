@@ -13,13 +13,16 @@ class NonogramSolver:
             # ex) a + b + c = N - K, since 4 + 1 + 1 = K
             possible = []  # possible bin strings
             for t in self.partitions(N - K, len(rules) + 1):
-                print(t)
                 # build binary string
                 bin_str = t[0] * '0' + rules[0] * '1'
                 for i, rule in enumerate(rules[1:], start=1):
                     bin_str += t[i] * '0' + '0' + rule * '1'  # pad left with 0
                 bin_str += t[-1] * '0'  # add right side padding
-                possible.append(int(bin_str, 2))
+                for i in range(N):
+                    if (bin_str[i] == '1' and line[i] == '0') or (bin_str[i] == '0' and line[i] == '1'):
+                        break  # contradiction found
+                else:
+                    possible.append(int(bin_str, 2))
             # if 1, then bitwise AND is only 1 if all are 1
             o_overlap = reduce(lambda x, y: x & y, possible)
             # if 0, then bitwise OR is only 0 if all are 0
@@ -44,6 +47,7 @@ class NonogramSolver:
 
 if __name__ == "__main__":
     nonogram_solver = NonogramSolver()
-    line = np.array(['', '', '', '', '', '', '', '', '', ''])
-    rules = [3, 3, 1]
+    line = np.array(['1', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '])
+    rules = '5 2'
+    rules = list(map(int, rules.split()))
     print(nonogram_solver.solve_line(line, rules))
