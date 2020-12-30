@@ -26,7 +26,8 @@ class NonogramSolver:
         options.add_argument('--start-maximized')
         self.driver = webdriver.Chrome(options=options)
         self.driver.get(LINK)
-        sleep(2)  # wait for page load
+        sleep(1)  # wait for page load
+        self.driver.refresh()
 
     def solve_line(self, line, rules):
         """ Given a line (row/col) and rules, solve as much as possible """
