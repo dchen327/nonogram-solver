@@ -4,13 +4,16 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from time import sleep
 
-BOARD_SIZE = 10  # 5, 10, 15, 20
+BOARD_SIZE = 5  # 5, 10, 15, 20
 USER_DATA_DIR = '--user-data-dir=/home/dchen327/.config/google-chrome/Profile 2'
 
 
 class NonogramSolver:
     def __init__(self, board_size):
         self.board_size = board_size
+
+    def setup_game(self):
+        """ Launch browser and get board """
         link = f'https://www.goobix.com/games/nonograms/?s={board_size}'
         self.launch_browser(link)
         self.get_board()
@@ -48,6 +51,9 @@ class NonogramSolver:
 
     def solve_line(self, line, rules):
         """ Given a line (row/col) and rules, solve as much as possible """
+        if rules == []:  # no rules, all must be X
+            line.fill('0')
+            return line
         K = sum(rules) + len(rules) - 1  # knowledge about current line
         N = len(line)
         # generate possible binary strings
@@ -95,8 +101,8 @@ class NonogramSolver:
 
 if __name__ == "__main__":
     nonogram_solver = NonogramSolver(BOARD_SIZE)
-    line = np.array(list('||||1||1||'))
-    rules = '4'
+    line = np.array(list('|||||'))
+    rules = ''
     rules = list(map(int, rules.split()))
     line = nonogram_solver.solve_line(line, rules)
-    # print(''.join(line))
+    print(''.join(line))
