@@ -12,6 +12,7 @@ LINK = f'https://www.goobix.com/games/nonograms/?s={BOARD_SIZE}'
 class NonogramSolver:
     def __init__(self):
         self.launch_browser()
+        self.get_board()
 
     def launch_browser(self):
         """ Launch chrome and go to game link """
@@ -27,7 +28,15 @@ class NonogramSolver:
         self.driver = webdriver.Chrome(options=options)
         self.driver.get(LINK)
         sleep(1)  # wait for page load
-        self.driver.refresh()
+        # self.driver.refresh()  # refresh to activate adblocker
+
+    def get_board(self):
+        """ Store row/cols of board and rules """
+        rules = {'rows': [], 'cols': []}
+        rule_elements = self.driver.find_elements_by_class_name(
+            'nonogramsDef')  # find rules
+        for rule_element in rule_elements:
+            print(rule_element.text)
 
     def solve_line(self, line, rules):
         """ Given a line (row/col) and rules, solve as much as possible """
