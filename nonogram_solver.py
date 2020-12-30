@@ -13,15 +13,21 @@ class NonogramSolver:
             # ex) a + b + c = N - K, since 4 + 1 + 1 = K
             possible = []  # possible bin strings
             for t in self.partitions(N - K, len(rules) + 1):
+                print(t)
                 # build binary string
                 bin_str = t[0] * '0' + rules[0] * '1'
                 for i, rule in enumerate(rules[1:], start=1):
-                    print(i, rule)
-                    bin_str += t[i] * '0' + rule * '1'
+                    bin_str += t[i] * '0' + '0' + rule * '1'  # pad left with 0
                 bin_str += t[-1] * '0'  # add right side padding
                 possible.append(int(bin_str, 2))
-            overlap = reduce(lambda x, y: x & y, possible)
-            print(bin(overlap)[2:].zfill(N))
+            # if 1, then bitwise AND is only 1 if all are 1
+            o_overlap = reduce(lambda x, y: x & y, possible)
+            # if 0, then bitwise OR is only 0 if all are 0
+            x_overlap = reduce(lambda x, y: x | y, possible)
+            o_overlap = bin(o_overlap)[2:].zfill(N)
+            x_overlap = bin(x_overlap)[2:].zfill(N)
+            print('1s confirmed', o_overlap)
+            print('0s confirmed', x_overlap)
 
     def partitions(self, n, k):
         """ n is the integer to partition, k is the length of partitions """
@@ -39,5 +45,5 @@ class NonogramSolver:
 if __name__ == "__main__":
     nonogram_solver = NonogramSolver()
     line = np.array(['', '', '', '', '', '', '', '', '', ''])
-    rule = [8]
-    print(nonogram_solver.solve_line(line, rule))
+    rules = [3, 6]
+    print(nonogram_solver.solve_line(line, rules))
