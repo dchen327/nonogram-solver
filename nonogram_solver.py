@@ -4,7 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from time import sleep
 
-BOARD_SIZE = 5  # 5, 10, 15, 20
+BOARD_SIZE = 10  # 5, 10, 15, 20
 USER_DATA_DIR = '--user-data-dir=/home/dchen327/.config/google-chrome/Profile 2'
 
 
@@ -14,7 +14,7 @@ class NonogramSolver:
 
     def setup_game(self):
         """ Launch browser and get board """
-        link = f'https://www.goobix.com/games/nonograms/?s={board_size}'
+        link = f'https://www.goobix.com/games/nonograms/?s={self.board_size}'
         self.launch_browser(link)
         self.get_board()
 
@@ -101,6 +101,7 @@ class NonogramSolver:
 
 if __name__ == "__main__":
     nonogram_solver = NonogramSolver(BOARD_SIZE)
+    nonogram_solver.setup_game()
     line = np.array(list('|||||'))
     rules = ''
     rules = list(map(int, rules.split()))
