@@ -12,8 +12,9 @@ class NonogramSolver:
     def __init__(self, board_size):
         self.board_size = board_size
         self.board = np.full((board_size, board_size), fill_value='|')
-        self.rules = []
         self.cells = []
+        self.rules = []
+        self.stack = []  # for storing stack of rules to be processed
 
     def setup_game(self):
         """ Launch browser and get board """
@@ -99,9 +100,9 @@ class NonogramSolver:
         return line
 
     def solve_game(self):
-        stack = self.rules[:]
-        while stack:
-            rule, idx, knowledge = stack.pop()
+        self.stack = self.rules[:]
+        while self.stack:
+            rule, idx, knowledge = self.stack.pop()
             board_idx = self.get_board_idx(idx)
             line = self.board[board_idx].copy()
             line = self.solve_line(line, rule)
@@ -120,8 +121,10 @@ class NonogramSolver:
                     row, col = i, idx
                 else:  # row
                     row, col = idx - self.board_size, i
-                cell = self.cells[col * self.board_size + row]
+                cell = self.cells[row * self.board_size + col]
                 cell.click()
+                if val == '0':  # double click for X
+                    cell.click()
 
     def get_board_idx(self, idx):
         """ Given idx from 0 to 2 * board_size - 1, return np index """
