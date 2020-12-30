@@ -13,7 +13,6 @@ class NonogramSolver:
         self.board_size = board_size
         self.board = np.full((board_size, board_size), fill_value='|')
         self.rules = []
-        print(self.board)
 
     def setup_game(self):
         """ Launch browser and get board """
@@ -42,34 +41,34 @@ class NonogramSolver:
         Store row/cols of board and rules in self.rules 
         rule format: ([rules], row/col idx, knowledge)
         ex) ([2, 4], 3, 7)
-        rows are 0 to board_size-1, cols are board_size to 2 * board_size - 1
+        cols are 0 to board_size-1, rows are board_size to 2 * board_size - 1
         knowledge is sum(rules) + len(rules) - 1
         """
         rule_elements = self.driver.find_elements_by_class_name(
             'nonogramsDef')  # find rules
-        # store rules in rules dict by row and col
+        # store rules
         for i, rule_element in enumerate(rule_elements[:2 * self.board_size]):
             rule = list(map(int, rule_element.text.split()))
-            self.rules.append(1)
+            self.rules.append((rule, i, self.get_knowledge(rule)))
 
-        print(self.rules)
+        self.rules.sort(key=lambda x: x[2])
 
-    def solve_line(self, line, rules):
-        """ Given a line (row/col) and rules, solve as much as possible """
-        if rules == []:  # no rules, all must be X
+    def solve_line(self, line, rule):
+        """ Given a line (row/col) and rule, solve as much as possible """
+        if rule == []:  # no rules, all must be X
             line.fill('0')
             return line
-        K = sum(rules) + len(rules) - 1  # knowledge about current line
+        K = self.get_knowledge(rule)  # knowledge about current line
         N = len(line)
         # generate possible binary strings
         # ex) rules: [4, 1] -> a4bX1c where a, b, c are strings of Xs
         # ex) a + b + c = N - K, since 4 + 1 + 1 = K
         possible = []  # possible bin strings
-        for t in self.partitions(N - K, len(rules) + 1):
+        for t in self.partitions(N - K, len(rule) + 1):
             # build binary string
             # don't 1 pad left on first rule
-            bin_str = t[0] * '0' + rules[0] * '1'
-            for i, rule in enumerate(rules[1:], start=1):
+            bin_str = t[0] * '0' + rule[0] * '1'
+            for i, rule in enumerate(rule[1:], start=1):
                 bin_str += t[i] * '0' + '0' + rule * '1'  # pad left with 0
             bin_str += t[-1] * '0'  # add right side padding
             for i, bit in enumerate(bin_str):
@@ -91,6 +90,15 @@ class NonogramSolver:
 
         return line
 
+    def solve_game(self):
+        stack = []
+        while stack:
+            stack.append(rules.pop())
+
+    def get_knowledge(self, rule):
+        """ Returns a measure of how much we know given the current rule """
+        return sum(rule) + len(rule) - 1
+
     def partitions(self, n, k):
         """ n is the integer to partition, k is the length of partitions 
             ex) n=5, k=2 -> (5, 0), (4, 1), (3, 2), ..., (0, 5)
@@ -107,8 +115,8 @@ class NonogramSolver:
 if __name__ == "__main__":
     nonogram_solver = NonogramSolver(BOARD_SIZE)
     nonogram_solver.setup_game()
-    line = np.array(list('|||||'))
-    rules = ''
-    rules = list(map(int, rules.split()))
-    line = nonogram_solver.solve_line(line, rules)
-    print(''.join(line))
+    # line = np.array(list('|||||'))
+    # rules = '3'
+    # rules = list(map(int, rules.split()))
+    # line = nonogram_solver.solve_line(line, rules)
+    # print(''.join(line))
