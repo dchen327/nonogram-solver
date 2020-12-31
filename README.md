@@ -5,6 +5,7 @@ This solver uses the basic idea of solving lines individually. Progress in a lin
 
 Currently, on my laptop I can finish a 25x25 board in around 30 seconds.
 # Demo
+![nonogram](https://user-images.githubusercontent.com/37674516/103415878-195f2780-4b52-11eb-8cea-a281a96953e2.gif)
 
 # Future Todos
 - Switch to using PyAutoGui for faster clicking
