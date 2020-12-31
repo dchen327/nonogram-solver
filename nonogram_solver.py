@@ -111,7 +111,6 @@ class NonogramSolver:
             line = self.board[board_idx].copy()
             if self.stack == []:  # reset stack
                 self.stack = init_stack[:]
-                print(self.stack)
             if '|' not in line:
                 continue
             line = self.solve_line(line, self.rules[idx])
