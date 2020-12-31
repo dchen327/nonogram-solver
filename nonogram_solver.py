@@ -5,7 +5,7 @@ from selenium.webdriver.chrome.options import Options
 from functools import reduce
 from time import sleep
 
-BOARD_SIZE = 10  # 5, 10, 15, 20
+BOARD_SIZE = 25  # 5, 10, 15, 20
 USER_DATA_DIR = '--user-data-dir=/home/dchen327/.config/google-chrome/Profile 2'
 
 
@@ -128,19 +128,19 @@ class NonogramSolver:
                 break
 
             # guess (indeterminate)
-            if num_without_change > 2 * self.board_size:
-                # set a blank to 1
-                for i in range(self.board_size):
-                    changed = False
-                    for j in range(self.board_size):
-                        if self.board[i, j] == '|':
-                            self.board[i, j] = '1'
-                            changed = True
-                            break
-                    if changed:
-                        break
-                else:
-                    break
+            # if num_without_change > 3 * self.board_size:
+            #     print('guess')
+            #     num_without_change = 0
+            #     # set a blank to 1
+            #     for i in range(self.board_size):
+            #         changed = False
+            #         for j in range(self.board_size):
+            #             if self.board[i, j] == '|':
+            #                 self.board[i, j] = '1'
+            #                 changed = True
+            #                 break
+            #         if changed:
+            #             break
 
     def click_squares(self, idx, line):
         """ Fill in squares given an idx and a solved line, update in self.board """
