@@ -4,7 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from time import sleep
 
-BOARD_SIZE = 15  # 5, 10, 15, 20
+BOARD_SIZE = 20  # 5, 10, 15, 20
 USER_DATA_DIR = '--user-data-dir=/home/dchen327/.config/google-chrome/Profile 2'
 
 
@@ -55,7 +55,7 @@ class NonogramSolver:
             rule = list(map(int, rule_element.text.split()))
             self.rules.append((rule, i, self.get_knowledge(rule)))
 
-        # put most knowledge at end of list
+        # put lines with most knowledge last
         self.rules.sort(key=lambda x: x[2])
 
     def get_cell_elements(self):
@@ -102,16 +102,21 @@ class NonogramSolver:
     def solve_game(self):
         self.stack = self.rules[:]
         changed = True
+        self.setup_game()
         while changed:
             changed = False
             for rule, idx, knowledge in self.stack:
                 board_idx = self.get_board_idx(idx)
                 line = self.board[board_idx].copy()
+                if '|' not in line:
+                    continue
                 line = self.solve_line(line, rule)
                 # changes made
                 if not np.array_equal(line, self.board[board_idx]):
                     self.click_squares(idx, line)
                     changed = True
+            if not changed and '|' in self.board:  # guess (indeterminate)
+                pass
 
     def click_squares(self, idx, line):
         """ Fill in squares given an idx and a solved line, update in self.board """
