@@ -50,13 +50,15 @@ class NonogramSolver:
         """
         rule_elements = self.driver.find_elements_by_class_name(
             'nonogramsDef')  # find rules
+        init_knowledge = []
         # store rules
         for i, rule_element in enumerate(rule_elements[:2 * self.board_size]):
             rule = list(map(int, rule_element.text.split()))
-            self.rules.append((rule, i, self.get_knowledge(rule)))
-
-        # put lines with most knowledge last
-        self.rules.sort(key=lambda x: x[2])
+            self.rules.append(rule)
+            init_knowledge.append((i, self.get_knowledge(rule)))
+        # initial stack sorted by knowledge
+        self.stack = [i for i, knowledge in sorted(
+            init_knowledge, key=lambda x: x[1])]
 
     def get_cell_elements(self):
         """ Store all cell elements for clicking """
@@ -100,19 +102,19 @@ class NonogramSolver:
         return line
 
     def solve_game(self):
-        self.stack = self.rules[:]
+        print(self.stack)
         changed = True
         while changed:
             changed = False
             if len(self.stack) < 3:
                 self.stack = self.rules[:]
-            for rule, idx, knowledge in self.stack[-3:]:
+            for idx in self.stack[-3:]:
                 del self.stack[-3:]
                 board_idx = self.get_board_idx(idx)
                 line = self.board[board_idx].copy()
                 if '|' not in line:
                     continue
-                line = self.solve_line(line, rule)
+                line = self.solve_line(line, self.rules[idx])
                 # changes made
                 if not np.array_equal(line, self.board[board_idx]):
                     self.click_squares(idx, line)
@@ -129,8 +131,12 @@ class NonogramSolver:
                 self.board[board_idx][i] = val
                 if idx < self.board_size:  # col
                     row, col = i, idx
+                    next_idx = i  # idx to add to stack
                 else:  # row
                     row, col = idx - self.board_size, i
+                    next_idx = i + self.board_size
+
+                self.stack.append(next_idx)
                 cell = self.cells[row * self.board_size + col]
                 cell.click()
                 if val == '0':  # double click for X
