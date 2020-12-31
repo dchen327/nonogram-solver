@@ -103,44 +103,36 @@ class NonogramSolver:
         return line
 
     def solve_game(self):
-        init_stack = self.stack[:]
-        num_without_change = 0
-        while self.stack:
-            idx = self.stack.pop()
-            board_idx = self.get_board_idx(idx)
-            line = self.board[board_idx].copy()
-            if self.stack == []:  # reset stack
-                self.stack = init_stack[:]
-            if '|' not in line:
-                continue
-            line = self.solve_line(line, self.rules[idx])
-            # changes made
-            if not np.array_equal(line, self.board[board_idx]):
-                try:
-                    self.click_squares(idx, line)
-                except selenium.common.exceptions.StaleElementReferenceException:
-                    break  # board solved
-                num_without_change = 0
-            else:
-                num_without_change += 1
+        changed = True
+        while changed:
+            changed = False
+            for idx in self.stack:
+                board_idx = self.get_board_idx(idx)
+                line = self.board[board_idx].copy()
+                if '|' not in line:
+                    self.stack.remove(idx)
+                    continue
+                line = self.solve_line(line, self.rules[idx])
+                # changes made
+                if not np.array_equal(line, self.board[board_idx]):
+                    try:
+                        self.click_squares(idx, line)
+                    except selenium.common.exceptions.StaleElementReferenceException:
+                        break
+                    changed = True
 
-            if '|' not in self.board:  # complete
-                break
-
-            # guess (indeterminate)
-            # if num_without_change > 3 * self.board_size:
-            #     print('guess')
-            #     num_without_change = 0
-            #     # set a blank to 1
-            #     for i in range(self.board_size):
-            #         changed = False
-            #         for j in range(self.board_size):
-            #             if self.board[i, j] == '|':
-            #                 self.board[i, j] = '1'
-            #                 changed = True
-            #                 break
-            #         if changed:
-            #             break
+            if not changed and '|' in self.board:  # guess
+                print('guess')
+                changed = True
+                # set a blank to 1
+                for idx in self.stack:
+                    board_idx = self.get_board_idx(idx)
+                    line = self.board[board_idx].copy()
+                    if '|' in line:
+                        for i in range(len(line)):
+                            if line[i] == '|':
+                                line[i] = '1'
+                                break
 
     def click_squares(self, idx, line):
         """ Fill in squares given an idx and a solved line, update in self.board """
@@ -151,12 +143,9 @@ class NonogramSolver:
                 self.board[board_idx][i] = val
                 if idx < self.board_size:  # col
                     row, col = i, idx
-                    next_idx = i  # idx to add to stack
                 else:  # row
                     row, col = idx - self.board_size, i
-                    next_idx = i + self.board_size
 
-                self.stack.append(next_idx)
                 cell = self.cells[row * self.board_size + col]
                 cell.click()
                 if val == '0':  # double click for X
