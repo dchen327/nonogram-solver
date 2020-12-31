@@ -124,6 +124,9 @@ class NonogramSolver:
             else:
                 num_without_change += 1
 
+            if '|' not in self.board:  # complete
+                break
+
             # guess (indeterminate)
             if num_without_change > 2 * self.board_size:
                 # set a blank to 1
@@ -136,6 +139,8 @@ class NonogramSolver:
                             break
                     if changed:
                         break
+                else:
+                    break
 
     def click_squares(self, idx, line):
         """ Fill in squares given an idx and a solved line, update in self.board """
