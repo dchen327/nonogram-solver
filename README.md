@@ -3,3 +3,8 @@ Nonograms are picture logic puzzles in which cells in a grid must be colored or 
 
 This solver uses the basic idea of solving lines individually. Progress in a line is made by looking at overlaps in all possible patterns fitting the current rule.
 # Demo
+
+# Future Todos
+- Switch to using PyAutoGui for faster clicking
+- Incorporate mouse dragging instead of independent clicks
+- Caching of common patterns
