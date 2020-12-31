@@ -4,7 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from time import sleep
 
-BOARD_SIZE = 20  # 5, 10, 15, 20
+BOARD_SIZE = 10  # 5, 10, 15, 20
 USER_DATA_DIR = '--user-data-dir=/home/dchen327/.config/google-chrome/Profile 2'
 
 
@@ -102,10 +102,12 @@ class NonogramSolver:
     def solve_game(self):
         self.stack = self.rules[:]
         changed = True
-        self.setup_game()
         while changed:
             changed = False
-            for rule, idx, knowledge in self.stack:
+            if len(self.stack) < 3:
+                self.stack = self.rules[:]
+            for rule, idx, knowledge in self.stack[-3:]:
+                del self.stack[-3:]
                 board_idx = self.get_board_idx(idx)
                 line = self.board[board_idx].copy()
                 if '|' not in line:
