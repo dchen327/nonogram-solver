@@ -1,7 +1,8 @@
 import numpy as np
-from functools import reduce
+import selenium
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from functools import reduce
 from time import sleep
 
 BOARD_SIZE = 10  # 5, 10, 15, 20
@@ -102,25 +103,40 @@ class NonogramSolver:
         return line
 
     def solve_game(self):
-        print(self.stack)
-        changed = True
-        while changed:
-            changed = False
-            if len(self.stack) < 3:
-                self.stack = self.rules[:]
-            for idx in self.stack[-3:]:
-                del self.stack[-3:]
-                board_idx = self.get_board_idx(idx)
-                line = self.board[board_idx].copy()
-                if '|' not in line:
-                    continue
-                line = self.solve_line(line, self.rules[idx])
-                # changes made
-                if not np.array_equal(line, self.board[board_idx]):
+        init_stack = self.stack[:]
+        num_without_change = 0
+        while self.stack:
+            idx = self.stack.pop()
+            board_idx = self.get_board_idx(idx)
+            line = self.board[board_idx].copy()
+            if self.stack == []:  # reset stack
+                self.stack = init_stack[:]
+                print(self.stack)
+            if '|' not in line:
+                continue
+            line = self.solve_line(line, self.rules[idx])
+            # changes made
+            if not np.array_equal(line, self.board[board_idx]):
+                try:
                     self.click_squares(idx, line)
-                    changed = True
-            if not changed and '|' in self.board:  # guess (indeterminate)
-                pass
+                except selenium.common.exceptions.StaleElementReferenceException:
+                    break  # board solved
+                num_without_change = 0
+            else:
+                num_without_change += 1
+
+            # guess (indeterminate)
+            if num_without_change > 2 * self.board_size:
+                # set a blank to 1
+                for i in range(self.board_size):
+                    changed = False
+                    for j in range(self.board_size):
+                        if self.board[i, j] == '|':
+                            self.board[i, j] = '1'
+                            changed = True
+                            break
+                    if changed:
+                        break
 
     def click_squares(self, idx, line):
         """ Fill in squares given an idx and a solved line, update in self.board """
