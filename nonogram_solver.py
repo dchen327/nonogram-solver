@@ -43,7 +43,7 @@ class NonogramSolver:
 
     def get_rules(self):
         """
-        Store row/cols of board and rules in self.rules 
+        Store row/cols of board and rules in self.rules
         rule format: ([rules], row/col idx, knowledge)
         ex) ([2, 4], 3, 7)
         cols are 0 to board_size-1, rows are board_size to 2 * board_size - 1
@@ -115,10 +115,7 @@ class NonogramSolver:
                 line = self.solve_line(line, self.rules[idx])
                 # changes made
                 if not np.array_equal(line, self.board[board_idx]):
-                    try:
-                        self.click_squares(idx, line)
-                    except selenium.common.exceptions.StaleElementReferenceException:
-                        break
+                    self.click_squares(idx, line)
                     changed = True
 
             if not changed and '|' in self.board:  # guess
@@ -132,24 +129,28 @@ class NonogramSolver:
                         for i in range(len(line)):
                             if line[i] == '|':
                                 line[i] = '1'
+                                self.click_squares(idx, line)
                                 break
 
     def click_squares(self, idx, line):
         """ Fill in squares given an idx and a solved line, update in self.board """
-        board_idx = self.get_board_idx(idx)
-        curr_line = self.board[board_idx]
-        for i, val in enumerate(line):
-            if val != '|' and curr_line[i] == '|':  # update in board
-                self.board[board_idx][i] = val
-                if idx < self.board_size:  # col
-                    row, col = i, idx
-                else:  # row
-                    row, col = idx - self.board_size, i
+        try:
+            board_idx = self.get_board_idx(idx)
+            curr_line = self.board[board_idx]
+            for i, val in enumerate(line):
+                if val != '|' and curr_line[i] == '|':  # update in board
+                    self.board[board_idx][i] = val
+                    if idx < self.board_size:  # col
+                        row, col = i, idx
+                    else:  # row
+                        row, col = idx - self.board_size, i
 
-                cell = self.cells[row * self.board_size + col]
-                cell.click()
-                if val == '0':  # double click for X
+                    cell = self.cells[row * self.board_size + col]
                     cell.click()
+                    if val == '0':  # double click for X
+                        cell.click()
+        except selenium.common.exceptions.StaleElementReferenceException:
+            return
 
     def get_board_idx(self, idx):
         """ Given idx from 0 to 2 * board_size - 1, return np index """
